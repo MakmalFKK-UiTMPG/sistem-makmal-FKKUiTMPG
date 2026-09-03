@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Makmal Saya</title>
+    <!-- Ini adalah kod untuk memanggil sistem Supabase ke dalam HTML kita -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h2>Senarai Tempahan Peralatan</h2>
+    
+    <!-- Jadual kosong yang akan diisi oleh Supabase nanti -->
+    <table id="jadualTempahan">
+        <tr>
+            <th>Nama Pemohon</th>
+            <th>Peralatan</th>
+            <th>Tarikh</th>
+            <th>Status</th>
+        </tr>
+    </table>
+
+    <script>
+        // 1. TAMPAL URL DAN KEY AWAK DI SINI
+        const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
+        
+        // 2. Sambungkan laman web ke Supabase
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // 3. Fungsi untuk tarik data dari jadual 'tempahan_peralatan'
+        async function dapatkanData() {
+            const { data, error } = await supabase
+                .from('tempahan_peralatan')
+                .select('*');
+
+            if (error) {
+                console.error('Ada masalah ralat:', error);
+                return;
+            }
+
+            // 4. Masukkan data ke dalam jadual HTML kita
+            const table = document.getElementById('jadualTempahan');
+            data.forEach(rekod => {
+                const row = table.insertRow();
+                row.insertCell(0).innerText = rekod.nama_pemohon;
+                row.insertCell(1).innerText = rekod.nama_peralatan;
+                row.insertCell(2).innerText = rekod.tarikh_guna;
+                row.insertCell(3).innerText = rekod.status;
+            });
+        }
+
+        // Jalankan fungsi bila laman web dibuka
+        dapatkanData();
+    </script>
+
+</body>
+</html>

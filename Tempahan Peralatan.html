@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <title>Borang Tempahan Peralatan Makmal</title>
+    <!-- Guna CDN Supabase yang sama dengan admin.html -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; background-color: #f9f9f9; }
+        h2 { color: #2c3e50; text-align: center; }
+        .form-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #2980b9; color: white; border: none; padding: 10px 15px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; }
+        button:hover { background-color: #3498db; }
+        
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        
+        .status-menunggu { color: #d35400; font-weight: bold; }
+        .status-lulus { color: #27ae60; font-weight: bold; }
+        .status-tolak { color: #c0392b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Borang Tempahan Peralatan Makmal</h2>
+
+    <!-- BORANG TEMPAHAN -->
+    <div class="form-card">
+        <form id="formTempahan">
+            <div class="input-group">
+                <label>Nama Pemohon:</label>
+                <input type="text" id="nama_pemohon" required placeholder="Contoh: Ahmad Bin Ali">
+            </div>
+
+            <div class="input-group">
+                <label>Nama Peralatan:</label>
+                <select id="nama_peralatan" required>
+                    <option value="">-- Pilih Peralatan --</option>
+                    <option value="Vacuum Furnace">Vacuum Furnace</option>
+                    <option value="Muffle Furnace">Muffle Furnace</option>
+                    <option value="UV-VIS">UV-VIS</option>
+                    <option value="FTIR">FTIR</option>
+                    <option value="SEM">SEM</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Tarikh Guna:</label>
+                <input type="date" id="tarikh_guna" required>
+            </div>
+
+            <div class="input-group">
+                <label>Masa Mula:</label>
+                <select id="masa_mula" required>
+                    <option value="">-- Pilih Masa Mula --</option>
+                    <option value="08:00">08:00 AM</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="14:00">02:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Masa Tamat:</label>
+                <select id="masa_tamat" required>
+                    <option value="">-- Pilih Masa Tamat --</option>
+                    <option value="09:00">09:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">01:00 PM</option>
+                    <option value="15:00">03:00 PM</option>
+                    <option value="16:00">04:00 PM</option>
+                    <option value="17:00">05:00 PM</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Tujuan:</label>
+                <textarea id="tujuan" rows="2" placeholder="Tujuan penggunaan..."></textarea>
+            </div>
+
+            <button type="submit">Hantar Tempahan</button>
+        </form>
+    </div>
+
+    <!-- JADUAL SENARAI TEMPAHAN PELAJAR -->
+    <h3>Status Tempahan Semasa</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Pemohon</th>
+                <th>Peralatan</th>
+                <th>Tarikh Guna</th>
+                <th>Masa</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="isiJadualPelajar">
+            <tr><td colspan="5" style="text-align:center;">Memuatkan data...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. TETAPAN SUPABASE
+            const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
+            
+            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+            // 2. FUNGSI UNTUK HANTAR TEMPAHAN
+            document.getElementById('formTempahan').addEventListener('submit', async function(e) {
+                e.preventDefault(); // Elak halaman refresh automatik
+
+                const nama_pemohon = document.getElementById('nama_pemohon').value;
+                const nama_peralatan = document.getElementById('nama_peralatan').value;
+                const tarikh_guna = document.getElementById('tarikh_guna').value;
+                const masa_mula = document.getElementById('masa_mula').value;
+                const masa_tamat = document.getElementById('masa_tamat').value;
+                const tujuan = document.getElementById('tujuan').value;
+
+                // Hantar data ke Supabase
+                const { data, error } = await supabaseClient
+                    .from('tempahan_peralatan')
+                    .insert([
+                        { 
+                            nama_pemohon: nama_pemohon, 
+                            nama_peralatan: nama_peralatan, 
+                            tarikh_guna: tarikh_guna, 
+                            masa_mula: masa_mula, 
+                            masa_tamat: masa_tamat, 
+                            tujuan: tujuan,
+                            status: 'Menunggu' // Default status bila baru hantar
+                        }
+                    ]);
+
+                if (error) {
+                    alert('Gagal menghantar tempahan: ' + error.message);
+                    console.error('Ralat:', error);
+                } else {
+                    alert('Tempahan berjaya dihantar!');
+                    document.getElementById('formTempahan').reset(); // Kosongkan borang
+                    paparkanTempahanPelajar(); // Kemaskini jadual terus
+                }
+            });
+
+            // 3. FUNGSI PAPAR SENARAI TEMPAHAN
+            async function paparkanTempahanPelajar() {
+                const tbody = document.getElementById('isiJadualPelajar');
+                
+                const { data, error } = await supabaseClient
+                    .from('tempahan_peralatan')
+                    .select('*')
+                    .order('id', { ascending: false });
+
+                if (error) {
+                    console.error('Ralat ambil data:', error);
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuatkan data.</td></tr>';
+                    return;
+                }
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Tiada rekod tempahan ditemui.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+
+                data.forEach(rekod => {
+                    const row = tbody.insertRow();
+
+                    let statusSemasa = rekod.status || 'Menunggu';
+                    let statusClass = 'status-menunggu';
+                    if (statusSemasa === 'Lulus') statusClass = 'status-lulus';
+                    if (statusSemasa === 'Ditolak') statusClass = 'status-tolak';
+
+                    const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || '-';
+                    const namaPeralatan = rekod.nama_peralatan || '-';
+                    const tarikhGuna = rekod.tarikh_guna || '-';
+                    const masaDisplay = (rekod.masa_mula && rekod.masa_tamat) ? `${rekod.masa_mula} - ${rekod.masa_tamat}` : '-';
+
+                    row.insertCell(0).innerText = namaPemohon;
+                    row.insertCell(1).innerText = namaPeralatan;
+                    row.insertCell(2).innerText = tarikhGuna;
+                    row.insertCell(3).innerText = masaDisplay;
+                    
+                    const cellStatus = row.insertCell(4);
+                    cellStatus.innerHTML = `<span class="${statusClass}">${statusSemasa}</span>`;
+                });
+            }
+
+            // Jalankan paparan jadual sebaik sahaja web siap muat
+            paparkanTempahanPelajar();
+        });
+    </script>
+
+</body>
+</html>
