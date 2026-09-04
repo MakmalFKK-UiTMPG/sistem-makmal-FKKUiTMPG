@@ -25,8 +25,10 @@
         .timetable th { background-color: #2c3e50; color: white; }
         .timetable th.week-header { background-color: #34495e; font-size: 14px; text-align: left; padding-left: 15px; }
         
+        /* STATUS SLOT TIMETABLE */
         .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; }
         .slot-available:hover { background-color: #d4efdf; border: 1px solid #27ae60; }
+        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 12px; }
         
         button { background-color: #2980b9; color: white; border: none; padding: 12px 15px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background-color: #3498db; }
@@ -58,8 +60,8 @@
 
             <div class="input-group">
                 <label>Nama Peralatan:</label>
-                <select id="nama_peralatan" required>
-                    <option value="">-- Pilih Peralatan --</option>
+                <select id="nama_peralatan" required onchange="kemaskiniStatusTimetable()">
+                    <option value="">-- Pilih Peralatan Terlebih Dahulu --</option>
                     <option value="Vacuum Furnace">Vacuum Furnace</option>
                     <option value="Muffle Furnace">Muffle Furnace</option>
                     <option value="UV-VIS">UV-VIS</option>
@@ -78,7 +80,7 @@
         <div class="timetable-card">
             <h3>Langkah 2: Pilih Slot Masa Pada Jadual</h3>
             <p style="text-align: center; color: #555; margin-top: 0; font-weight: bold;">
-                Klik mana-mana slot <span style="color: #27ae60;">"Kosong"</span> untuk menetapkan Tarikh & Masa automatik:
+                Klik mana-mana slot <span style="color: #27ae60;">"🟢 Kosong"</span> untuk menetapkan Tarikh & Masa automatik:
             </p>
             <table class="timetable">
                 <thead>
@@ -98,7 +100,7 @@
 
         <!-- BAHAGIAN 3: TARIKH, MASA & BUTANG HANTAR (BAWAH TIMETABLE) -->
         <div class="form-card" id="bahagianBorangPengesahan">
-            <h3>Langkah 3: Sahkan Tarikh & Masa Masa Tempahan</h3>
+            <h3>Langkah 3: Sahkan Tarikh & Masa Tempahan</h3>
             
             <div class="input-group">
                 <label>Tarikh Guna Dipilih:</label>
@@ -135,7 +137,7 @@
                 </select>
             </div>
 
-            <button type="submit">Hantar Tempahan ke Supabase</button>
+            <button type="submit">Hantar Tempahan</button>
         </div>
     </form>
 
@@ -157,6 +159,13 @@
     </table>
 
     <script>
+        // TETAPAN SUPABASE
+        const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let senaraiTempahanSediaAda = [];
+
         // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK
         function janaTimetable2Minggu() {
             const tbody = document.getElementById('isiTimetable2Minggu');
@@ -186,10 +195,10 @@
                     let row = tbody.insertRow();
                     row.innerHTML = `
                         <td><strong>${formatPapar}</strong></td>
-                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '08:00', '10:00')">Kosong</td>
-                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '10:00', '12:00')">Kosong</td>
-                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '14:00', '16:00')">Kosong</td>
-                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '16:00', '17:00')">Kosong</td>
+                        <td id="slot_${formatTarikhISO}_08:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '08:00', '10:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_10:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '10:00', '12:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_14:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '14:00', '16:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_16:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '16:00', '17:00')">🟢 Kosong</td>
                     `;
                     hariDijana++;
                 }
@@ -197,24 +206,62 @@
             }
         }
 
-        // 2. FUNGSI PILIH SLOT (AUTO ISIKAN TARIKH & MASA & SCROLL)
+        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH
+        function kemaskiniStatusTimetable() {
+            janaTimetable2Minggu(); // Reset balik ke kosong
+
+            const peralatanDipilih = document.getElementById('nama_peralatan').value;
+            if (!peralatanDipilih) return;
+
+            // Filter tempahan aktif untuk peralatan yang dipilih
+            senaraiTempahanSediaAda.forEach(rekod => {
+                if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
+                    const idSlot = `slot_${rekod.tarikh_guna}_${rekod.masa_mula}`;
+                    const elSlot = document.getElementById(idSlot);
+                    if (elSlot) {
+                        elSlot.className = "slot-booked";
+                        elSlot.innerHTML = "🔴 Ditempah";
+                        elSlot.onclick = function() {
+                            alert(`❌ Slot ini telah ditempah untuk ${peralatanDipilih} on ${rekod.tarikh_guna}. Sila pilih slot lain.`);
+                        };
+                    }
+                }
+            });
+        }
+
+        // 3. FUNGSI PILIH SLOT (AUTO ISIKAN TARIKH & MASA & SCROLL)
         function pilihSlotFull(tarikh, mula, tamat) {
+            const peralatanDipilih = document.getElementById('nama_peralatan').value;
+            if (!peralatanDipilih) {
+                alert("Sila pilih 'Nama Peralatan' di Langkah 1 terlebih dahulu!");
+                document.getElementById('nama_peralatan').focus();
+                return;
+            }
+
             document.getElementById('tarikh_guna').value = tarikh;
             document.getElementById('masa_mula').value = mula;
             document.getElementById('masa_tamat').value = tamat;
             document.getElementById('bahagianBorangPengesahan').scrollIntoView({ behavior: 'smooth' });
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", async function() {
             janaTimetable2Minggu();
 
-            // TETAPAN SUPABASE (KEKALKAN DATA ASAL)
-            const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
-            
-            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+            // AMBIL SEMUA REKOD DARI SUPABASE DAHULU
+            async function muatTurunTempahan() {
+                const { data, error } = await supabaseClient
+                    .from('tempahan_peralatan')
+                    .select('*');
+                
+                if (!error && data) {
+                    senaraiTempahanSediaAda = data;
+                }
+            }
 
-            // FUNGSI HANTAR TEMPAHAN
+            await muatTurunTempahan();
+            paparkanTempahanPelajar();
+
+            // FUNGSI HANTAR TEMPAHAN DENGAN SEMAKAN PERTINDIHAN
             document.getElementById('formTempahan').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -230,6 +277,28 @@
                     return;
                 }
 
+                // 1. SEMAK PERTINDIHAN DALAM SUPABASE
+                const { data: bertindih, error: ralatSemak } = await supabaseClient
+                    .from('tempahan_peralatan')
+                    .select('*')
+                    .eq('nama_peralatan', nama_peralatan)
+                    .eq('tarikh_guna', tarikh_guna)
+                    .eq('masa_mula', masa_mula)
+                    .neq('status', 'Ditolak');
+
+                if (ralatSemak) {
+                    alert('Ralat semasa menyemak ketersediaan slot: ' + ralatSemak.message);
+                    return;
+                }
+
+                if (bertindih && bertindih.length > 0) {
+                    alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (Jam ${masa_mula}) telah pun ditempah oleh pengguna lain. Sila pilih slot atau peralatan lain.`);
+                    await muatTurunTempahan();
+                    kemaskiniStatusTimetable();
+                    return;
+                }
+
+                // 2. PROSES TEMPAHAN JIKA TIADA BERTINDIH
                 const { data, error } = await supabaseClient
                     .from('tempahan_peralatan')
                     .insert([
@@ -247,8 +316,10 @@
                 if (error) {
                     alert('Gagal menghantar tempahan: ' + error.message);
                 } else {
-                    alert('Tempahan berjaya dihantar!');
+                    alert('✅ Tempahan berjaya dihantar!');
                     document.getElementById('formTempahan').reset();
+                    await muatTurunTempahan();
+                    kemaskiniStatusTimetable();
                     paparkanTempahanPelajar();
                 }
             });
@@ -296,8 +367,6 @@
                     cellStatus.innerHTML = `<span class="${statusClass}">${statusSemasa}</span>`;
                 });
             }
-
-            paparkanTempahanPelajar();
         });
     </script>
 
