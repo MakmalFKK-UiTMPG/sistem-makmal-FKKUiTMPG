@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Masuk - Sistem Makmal FKK UiTM</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f6f9; }
+    .card { background: white; padding: 35px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+    h2 { color: #2c3e50; margin-bottom: 10px; }
+    p { color: #7f8c8d; font-size: 14px; line-height: 1.5; }
+    button { background-color: #1a73e8; color: white; border: none; padding: 12px 24px; font-size: 15px; border-radius: 5px; cursor: pointer; margin-top: 20px; font-weight: bold; }
+    button:hover { background-color: #1557b0; }
+    .error { color: #d93025; font-weight: bold; margin-top: 15px; font-size: 14px; background: #fce8e6; padding: 10px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>🏛️ Sistem Makmal FKK</h2>
+    <p id="status-text">Sila log masuk menggunakan e-mel rasmi UiTM untuk mengakses senarai makmal.</p>
+    
+    <button id="login-btn">🔑 Log Masuk dengan Google</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    // Gantikan dengan firebaseConfig anda (SAMA seperti dalam makmal.html)
+    const firebaseConfig = {
+     apiKey: "AIzaSyDDC9PLSCOzna4caIsrfPSvfR3A_FczKDc",
+
+    authDomain: "sistem-makmal-fkkuitmpg.firebaseapp.com",
+
+    projectId: "sistem-makmal-fkkuitmpg",
+
+    storageBucket: "sistem-makmal-fkkuitmpg.firebasestorage.app",
+
+    messagingSenderId: "291806336887",
+
+    appId: "1:291806336887:web:a0d4fca1866459ead03372"
+
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const loginBtn = document.getElementById('login-btn');
+    const statusText = document.getElementById('status-text');
+
+    loginBtn.addEventListener('click', () => {
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          const email = user.email;
+
+          // Semak jika e-mel UiTM (@uitm.edu.my atau @student.uitm.edu.my)
+          if (email.endsWith('@uitm.edu.my') || email.endsWith('@student.uitm.edu.my')) {
+            statusText.innerHTML = `<span style="color: #27ae60; font-weight: bold;">Log masuk berjaya! Mengalihkan...</span>`;
+            
+            // Redirect ke makmal.html
+            setTimeout(() => {
+              window.location.href = "makmal.html";
+            }, 1000);
+
+          } else {
+            statusText.innerHTML = `<div class="error">Akses Ditolak!<br>E-mel (${email}) bukan e-mel rasmi UiTM.</div>`;
+            signOut(auth);
+          }
+        })
+        .catch((error) => {
+          statusText.innerHTML = `<div class="error">Ralat: ${error.message}</div>`;
+        });
+    });
+  </script>
+</body>
+</html>
