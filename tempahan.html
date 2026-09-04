@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Borang Tempahan Peralatan Makmal</title>
-    <!-- Guna CDN Supabase yang sama dengan admin.html -->
+    
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 950px; margin: auto; background-color: #f9f9f9; }
         h2, h3 { color: #2c3e50; text-align: center; }
-        
         .back-btn { display: inline-block; margin-bottom: 15px; color: #2980b9; text-decoration: none; font-weight: bold; }
         
         /* BORANG KAD */
@@ -28,7 +27,7 @@
         /* STATUS SLOT TIMETABLE */
         .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; }
         .slot-available:hover { background-color: #d4efdf; border: 1px solid #27ae60; }
-        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 12px; }
+        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 11px; padding: 6px 2px; }
         
         button { background-color: #2980b9; color: white; border: none; padding: 12px 15px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background-color: #3498db; }
@@ -86,9 +85,13 @@
                 <thead>
                     <tr>
                         <th>Tarikh / Hari</th>
-                        <th>Pagi (08:00 - 10:00)</th>
-                        <th>Tengah Hari (10:00 - 12:00)</th>
-                        <th>Petang 1 (02:00 - 04:00)</th>
+                        <th>Pagi (08:00 - 9:00)</th>
+                        <th>Pagi (09:00 - 10:00)</th>
+                        <th>Pagi (10:00 - 11:00)</th>
+                        <th>Tengah Hari (11:00 - 12:00)</th>
+                       <th>Tengah Hari (12:00 - 01:00)</th>
+                        <th>Petang 1 (02:00 - 03:00)</th>
+                        <th>Petang 1 (03:00 - 04:00)</th>
                         <th>Petang 2 (04:00 - 05:00)</th>
                     </tr>
                 </thead>
@@ -206,7 +209,7 @@
             }
         }
 
-        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH
+        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH (TERMASUK NAMA PEMOHON)
         function kemaskiniStatusTimetable() {
             janaTimetable2Minggu(); // Reset balik ke kosong
 
@@ -219,10 +222,14 @@
                     const idSlot = `slot_${rekod.tarikh_guna}_${rekod.masa_mula}`;
                     const elSlot = document.getElementById(idSlot);
                     if (elSlot) {
+                        const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || 'Pengguna';
+                        
                         elSlot.className = "slot-booked";
-                        elSlot.innerHTML = "🔴 Ditempah";
+                        // Memaparkan nama pemohon di dalam petak timetable
+                        elSlot.innerHTML = `🔴 Ditempah:<br><strong>${namaPemohon}</strong>`;
+                        
                         elSlot.onclick = function() {
-                            alert(`❌ Slot ini telah ditempah untuk ${peralatanDipilih} on ${rekod.tarikh_guna}. Sila pilih slot lain.`);
+                            alert(`❌ Slot ini telah ditempah oleh "${namaPemohon}" untuk peralatan ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot lain.`);
                         };
                     }
                 }
@@ -369,6 +376,5 @@
             }
         });
     </script>
-
 </body>
 </html>
