@@ -57,6 +57,15 @@
     </table>
 
     <script>
+        // KAWALAN KESELAMATAN KATA LALUAN
+        const KATA_LALUAN_ADMIN = "FKK@20160901"; // Tukar kata laluan di sini
+        const inputLaluan = prompt("🔒 KAWALAN ADMIN:\nSila masukkan kata laluan untuk mengakses panel ini:");
+
+        if (inputLaluan !== KATA_LALUAN_ADMIN) {
+            alert("❌ Kata laluan salah! Anda tidak mempunyai kebenaran untuk mengakses laman ini.");
+            window.location.href = "./makmal.html"; // Tendang pengguna kembali ke laman utama
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             // TETAPAN SUPABASE
             const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
@@ -95,7 +104,6 @@
                         if (statusSemasa === 'Lulus') statusClass = 'status-lulus';
                         if (statusSemasa === 'Ditolak') statusClass = 'status-tolak';
 
-                        // Mengesan apa-apa variasi ejaan nama & no telefon
                         const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || '-';
                         const noTelefon = rekod.no_telefon || rekod.no_tel || rekod.phone || '-';
                         const namaPeralatan = rekod.nama_peralatan || '-';
@@ -105,7 +113,6 @@
 
                         row.insertCell(0).innerText = namaPemohon;
                         
-                        // Kolum No. Telefon dengan Pautan Direct Call
                         const cellPhone = row.insertCell(1);
                         if (noTelefon !== '-' && noTelefon !== '' && noTelefon !== null) {
                             cellPhone.innerHTML = `<a href="tel:${noTelefon}" class="phone-link">📞 ${noTelefon}</a>`;
@@ -185,6 +192,5 @@
             dapatkanData();
         });
     </script>
-
 </body>
 </html>
