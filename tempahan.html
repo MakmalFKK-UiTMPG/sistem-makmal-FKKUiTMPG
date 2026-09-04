@@ -206,7 +206,7 @@
             }
         }
 
-        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN SEJARAH SUPABASE
+        // 2. FUNGSI KEMASKINI STATUS SLOT (TERMASUK POTONG SAAT :00 SUPABASE)
         async function kemaskiniStatusTimetable() {
             janaTimetable2Minggu(); // Reset balik ke status asal
 
@@ -214,29 +214,27 @@
             const penerangan = document.getElementById('peneranganJadual');
 
             if (!peralatanDipilih) {
-                penerangan.innerHTML = '⚠️ Sila pilih peralatan di Langkah 1 dahulu untuk melihat status ketersediaan slot.';
-                penerangan.style.color = '#7f8c8d';
+                if(penerangan) penerangan.innerHTML = '⚠️ Sila pilih peralatan di Langkah 1 dahulu untuk melihat status ketersediaan slot.';
                 return;
             }
 
-            penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
-            penerangan.style.color = '#2c3e50';
+            if(penerangan) {
+                penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
+            }
 
-            // Muat turun data terbaharu dari Supabase setiap kali peralatan ditukar
+            // Reload data dari Supabase
             await muatTurunTempahan();
 
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
-                    let masaMulaFormatted = rekod.masa_mula;
-                    if (masaMulaFormatted && masaMulaFormatted.length === 4) {
-                        masaMulaFormatted = '0' + masaMulaFormatted;
-                    }
+                    // POTONG SAAT SUPABASE ':00' (Cth: '08:00:00' -> '08:00')
+                    let masaClean = rekod.masa_mula ? rekod.masa_mula.substring(0, 5) : '';
 
-                    const idSlot = `slot_${rekod.tarikh_guna}_${masaMulaFormatted}`;
+                    const idSlot = `slot_${rekod.tarikh_guna}_${masaClean}`;
                     const elSlot = document.getElementById(idSlot);
                     
                     if (elSlot) {
-                        const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || 'Pengguna';
+                        const namaPemohon = rekod.nama_pemohon || 'Pengguna';
                         elSlot.className = "slot-booked";
                         elSlot.innerHTML = `🔴 Ditempah:<br><strong>${namaPemohon}</strong>`;
                         
@@ -335,20 +333,18 @@
                 } else {
                     alert('✅ Tempahan berjaya dihantar!');
                     
-                    // Reset medan borang
                     document.getElementById('nama_pemohon').value = '';
                     document.getElementById('tujuan').value = '';
                     document.getElementById('tarikh_guna').value = '';
                     document.getElementById('masa_mula').value = '';
                     document.getElementById('masa_tamat').value = '';
 
-                    // Refresh timetable dan jadual sejarah
                     await kemaskiniStatusTimetable();
                     paparkanTempahanPelajar();
                 }
             });
 
-            // FUNGSI PAPAR SENARAI TEMPAHAN PELAJAR
+            // FUNGSI PAPAR SENARAI TEMPAHAN
             async function paparkanTempahanPelajar() {
                 const tbody = document.getElementById('isiJadualPelajar');
                 
