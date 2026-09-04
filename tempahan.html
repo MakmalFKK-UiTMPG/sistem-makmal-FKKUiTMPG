@@ -57,7 +57,7 @@
                 <input type="text" id="nama_pemohon" required placeholder="Contoh: Ahmad Bin Ali">
             </div>
 
-            <!-- 2. NOMBOR TELEFON -->
+            <!-- 2. NOMBOR TELEFON (Hanya untuk rujukan Admin) -->
             <div class="input-group">
                 <label>Nombor Telefon:</label>
                 <input type="tel" id="no_telefon" required placeholder="Contoh: 012-3456789">
@@ -69,7 +69,7 @@
                 <textarea id="tujuan" rows="2" placeholder="Tujuan penggunaan..."></textarea>
             </div>
 
-            <!-- 4. PILIH PERALATAN (DIBAWAH TUJUAN) -->
+            <!-- 4. PILIH PERALATAN -->
             <div class="filter-card">
                 <label>🔍 Pilih Peralatan Untuk Lihat Ketersediaan Slot:</label>
                 <select id="nama_peralatan" required onchange="kemaskiniStatusTimetable()">
@@ -129,12 +129,12 @@
         </div>
     </form>
 
+    <!-- JADUAL AWAM PELAJAR (TANPA NOMBOR TELEFON) -->
     <h3>Status Tempahan Semasa</h3>
     <table class="status-table">
         <thead>
             <tr>
                 <th>Nama Pemohon</th>
-                <th>No. Telefon</th>
                 <th>Peralatan</th>
                 <th>Tarikh Guna</th>
                 <th>Masa</th>
@@ -142,7 +142,7 @@
             </tr>
         </thead>
         <tbody id="isiJadualPelajar">
-            <tr><td colspan="6" style="text-align:center;">Memuatkan data...</td></tr>
+            <tr><td colspan="5" style="text-align:center;">Memuatkan data...</td></tr>
         </tbody>
     </table>
 
@@ -351,12 +351,12 @@
                     .order('id', { ascending: false });
 
                 if (error) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Gagal memuatkan data.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuatkan data.</td></tr>';
                     return;
                 }
 
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Tiada rekod tempahan ditemui.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Tiada rekod tempahan ditemui.</td></tr>';
                     return;
                 }
 
@@ -371,18 +371,16 @@
                     if (statusSemasa === 'Ditolak') statusClass = 'status-tolak';
 
                     const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || '-';
-                    const noTelefon = rekod.no_telefon || '-';
                     const namaPeralatan = rekod.nama_peralatan || '-';
                     const tarikhGuna = rekod.tarikh_guna || '-';
                     const masaDisplay = (rekod.masa_mula && rekod.masa_tamat) ? `${rekod.masa_mula} - ${rekod.masa_tamat}` : '-';
 
                     row.insertCell(0).innerText = namaPemohon;
-                    row.insertCell(1).innerText = noTelefon;
-                    row.insertCell(2).innerText = namaPeralatan;
-                    row.insertCell(3).innerText = tarikhGuna;
-                    row.insertCell(4).innerText = masaDisplay;
+                    row.insertCell(1).innerText = namaPeralatan;
+                    row.insertCell(2).innerText = tarikhGuna;
+                    row.insertCell(3).innerText = masaDisplay;
                     
-                    const cellStatus = row.insertCell(5);
+                    const cellStatus = row.insertCell(4);
                     cellStatus.innerHTML = `<span class="${statusClass}">${statusSemasa}</span>`;
                 });
             }
