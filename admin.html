@@ -104,9 +104,9 @@
 
                         row.insertCell(0).innerText = namaPemohon;
                         
-                        // Kolum No. Telefon dengan Pautan Hubungi
+                        // Kolum No. Telefon dengan Pautan Direct Call
                         const cellPhone = row.insertCell(1);
-                        if (noTelefon !== '-') {
+                        if (noTelefon !== '-' && noTelefon !== '') {
                             cellPhone.innerHTML = `<a href="tel:${noTelefon}" class="phone-link">📞 ${noTelefon}</a>`;
                         } else {
                             cellPhone.innerText = '-';
