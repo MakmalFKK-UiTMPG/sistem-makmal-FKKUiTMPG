@@ -32,34 +32,41 @@
         <a href="borangtempahan.html" class="btn" style="background:#2ecc71;">📋 Borang Tempahan</a>
     </div>
 
-    <!-- SKRIP FIREBASE LOG KELUAR -->
+    <!-- SKRIP FIREBASE (SEMAKAN KESELAMATAN & LOG KELUAR) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Gantikan dengan firebaseConfig anda
         const firebaseConfig = {
             apiKey: "AIzaSyDDC9PLSCOzna4caIsrfPSvfR3A_FczKDc",
-
-    authDomain: "sistem-makmal-fkkuitmpg.firebaseapp.com",
-
-    projectId: "sistem-makmal-fkkuitmpg",
-
-    storageBucket: "sistem-makmal-fkkuitmpg.firebasestorage.app",
-
-    messagingSenderId: "291806336887",
-
-    appId: "1:291806336887:web:a0d4fca1866459ead03372",
-
+            authDomain: "sistem-makmal-fkkuitmpg.firebaseapp.com",
+            projectId: "sistem-makmal-fkkuitmpg",
+            storageBucket: "sistem-makmal-fkkuitmpg.firebasestorage.app",
+            messagingSenderId: "291806336887",
+            appId: "1:291806336887:web:a0d4fca1866459ead03372"
         };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Fungsi Log Keluar
+        // 1. KAWALAN KESELAMATAN: Semak jika pengguna belum log masuk
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const email = user.email;
+                // Semak domain e-mel sekali lagi untuk keselamatan
+                if (!email.endsWith('@uitm.edu.my') && !email.endsWith('@student.uitm.edu.my')) {
+                    signOut(auth);
+                    window.location.href = "index.html";
+                }
+            } else {
+                // Jika tiada akaun log masuk, dihalang & dibawa balik ke index.html
+                window.location.href = "index.html";
+            }
+        });
+
+        // 2. FUNGSI LOG KELUAR
         document.getElementById('logout-btn').addEventListener('click', () => {
             signOut(auth).then(() => {
-                // Kembali ke muka depan (index.html) selepas log keluar
                 window.location.href = "index.html";
             }).catch((error) => {
                 alert("Ralat semasa log keluar: " + error.message);
