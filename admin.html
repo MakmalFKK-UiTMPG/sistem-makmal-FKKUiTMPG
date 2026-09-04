@@ -2,30 +2,38 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - Kelulusan Tempahan Makmal</title>
-    <!-- Guna CDN Supabase v2 yang paling stabil -->
+    
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: auto; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: auto; background-color: #f9f9f9; }
         h2 { color: #333; }
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        
+        .back-btn { display: inline-block; margin-bottom: 15px; color: #2980b9; text-decoration: none; font-weight: bold; }
+
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background-color: #2c3e50; color: white; }
-        
+
         .status-menunggu { color: #d35400; font-weight: bold; }
         .status-lulus { color: #27ae60; font-weight: bold; }
         .status-tolak { color: #c0392b; font-weight: bold; }
 
         .btn-lulus { background-color: #27ae60; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; }
         .btn-tolak { background-color: #c0392b; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-left: 5px; }
+        .btn-padam { background-color: #e74c3c; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px; font-weight: bold; margin-left: 5px; }
+        
         .btn-lulus:hover { background-color: #219150; }
         .btn-tolak:hover { background-color: #a93226; }
+        .btn-padam:hover { background-color: #922b21; }
     </style>
 </head>
 <body>
 
+    <a href="./makmal.html" class="back-btn">⬅️ Kembali ke Senarai Makmal</a>
     <h2>Panel Admin: Kelulusan Tempahan Peralatan</h2>
-    <p>Gunakan panel ini untuk meluluskan atau menolak tempahan pelajar.</p>
+    <p>Gunakan panel ini untuk meluluskan, menolak, atau memadam tempahan pelajar.</p>
 
     <table id="jadualAdmin">
         <thead>
@@ -98,19 +106,27 @@
 
                         const cellTindakan = row.insertCell(5);
                         
-                        // Buat butang secara selamat
+                        // 1. Butang Lulus
                         const btnLulus = document.createElement('button');
                         btnLulus.className = 'btn-lulus';
                         btnLulus.innerText = 'Lulus';
                         btnLulus.onclick = function() { tukarStatus(rekod.id, 'Lulus'); };
 
+                        // 2. Butang Tolak
                         const btnTolak = document.createElement('button');
                         btnTolak.className = 'btn-tolak';
                         btnTolak.innerText = 'Tolak';
                         btnTolak.onclick = function() { tukarStatus(rekod.id, 'Ditolak'); };
 
+                        // 3. Butang Padam (Baharu)
+                        const btnPadam = document.createElement('button');
+                        btnPadam.className = 'btn-padam';
+                        btnPadam.innerText = '🗑️ Padam';
+                        btnPadam.onclick = function() { padamRekod(rekod.id, namaPemohon); };
+
                         cellTindakan.appendChild(btnLulus);
                         cellTindakan.appendChild(btnTolak);
+                        cellTindakan.appendChild(btnPadam);
                     });
 
                 } catch (err) {
@@ -130,6 +146,25 @@
                 } else {
                     alert(`Status berjaya ditukar kepada: ${statusBaru}`);
                     dapatkanData();
+                }
+            }
+
+            // 4. FUNGSI PADAM REKOD (BAHARU)
+            async function padamRekod(id, nama) {
+                const sahkan = confirm(`Adakah anda pasti ingin memadam rekod tempahan oleh "${nama}"? Data ini akan dipadam secara kekal dari database.`);
+                
+                if (sahkan) {
+                    const { error } = await supabaseClient
+                        .from('tempahan_peralatan')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        alert('Gagal memadam rekod: ' + error.message);
+                    } else {
+                        alert('✅ Rekod berjaya dipadam secara kekal!');
+                        dapatkanData(); // Refresh jadual
+                    }
                 }
             }
 
