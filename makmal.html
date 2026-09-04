@@ -2,15 +2,24 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senarai Makmal FKK</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 30px; background: #f4f6f9; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .btn { background: #3498db; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px; }
+        .btn-logout { background: #e74c3c; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        .btn-logout:hover { background: #c0392b; }
     </style>
 </head>
 <body>
-    <h1>🏛️ Senarai Makmal FKK</h1>
+
+    <div class="header-container">
+        <h1>🏛️ Senarai Makmal FKK</h1>
+        <!-- BUTANG LOG KELUAR -->
+        <button id="logout-btn" class="btn-logout">🚪 Log Keluar</button>
+    </div>
     
     <!-- CONTOH CARD MAKMAL 1 -->
     <div class="card">
@@ -23,5 +32,33 @@
         <a href="borangtempahan.html" class="btn" style="background:#2ecc71;">📋 Borang Tempahan</a>
     </div>
 
+    <!-- SKRIP FIREBASE LOG KELUAR -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Gantikan dengan firebaseConfig anda
+        const firebaseConfig = {
+            apiKey: "PASTE_API_KEY_ANDA",
+            authDomain: "PASTE_AUTH_DOMAIN_ANDA",
+            projectId: "PASTE_PROJECT_ID_ANDA",
+            storageBucket: "PASTE_STORAGE_BUCKET_ANDA",
+            messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
+            appId: "PASTE_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Fungsi Log Keluar
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                // Kembali ke muka depan (index.html) selepas log keluar
+                window.location.href = "index.html";
+            }).catch((error) => {
+                alert("Ralat semasa log keluar: " + error.message);
+            });
+        });
+    </script>
 </body>
 </html>
