@@ -154,7 +154,7 @@
 
         let senaraiTempahanSediaAda = [];
 
-        // FUNGSI UNTUK MERAPIKAN FORMAT TARIKH KEPADA YYYY-MM-DD
+        // FUNGSI SERATKAN FORMAT TARIKH YYYY-MM-DD
         function formatTarikhStandard(d) {
             let yyyy = d.getFullYear();
             let mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -162,7 +162,7 @@
             return `${yyyy}-${mm}-${dd}`;
         }
 
-        // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK (9 KOLUM)
+        // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK
         function janaTimetable2Minggu() {
             const tbody = document.getElementById('isiTimetable2Minggu');
             tbody.innerHTML = '';
@@ -206,9 +206,9 @@
             }
         }
 
-        // 2. FUNGSI KEMASKINI STATUS SLOT IKUT PERALATAN DIPILIH
-        function kemaskiniStatusTimetable() {
-            janaTimetable2Minggu(); // Reset jadual ke status Kosong
+        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN SEJARAH SUPABASE
+        async function kemaskiniStatusTimetable() {
+            janaTimetable2Minggu(); // Reset balik ke status asal
 
             const peralatanDipilih = document.getElementById('nama_peralatan').value;
             const penerangan = document.getElementById('peneranganJadual');
@@ -221,6 +221,9 @@
 
             penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
             penerangan.style.color = '#2c3e50';
+
+            // Muat turun data terbaharu dari Supabase setiap kali peralatan ditukar
+            await muatTurunTempahan();
 
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
@@ -308,8 +311,7 @@
 
                 if (bertindih && bertindih.length > 0) {
                     alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (${masa_mula}) telah pun ditempah. Sila pilih slot lain.`);
-                    await muatTurunTempahan();
-                    kemaskiniStatusTimetable();
+                    await kemaskiniStatusTimetable();
                     return;
                 }
 
@@ -333,21 +335,20 @@
                 } else {
                     alert('✅ Tempahan berjaya dihantar!');
                     
-                    // Reset nama pemohon & tujuan sahaja, kekalkan pilihan peralatan
+                    // Reset medan borang
                     document.getElementById('nama_pemohon').value = '';
                     document.getElementById('tujuan').value = '';
                     document.getElementById('tarikh_guna').value = '';
                     document.getElementById('masa_mula').value = '';
                     document.getElementById('masa_tamat').value = '';
 
-                    // Kemaskini semula data Supabase dan refresh jadual secara automatik
-                    await muatTurunTempahan();
-                    kemaskiniStatusTimetable();
+                    // Refresh timetable dan jadual sejarah
+                    await kemaskiniStatusTimetable();
                     paparkanTempahanPelajar();
                 }
             });
 
-            // FUNGSI PAPAR SENARAI TEMPAHAN
+            // FUNGSI PAPAR SENARAI TEMPAHAN PELAJAR
             async function paparkanTempahanPelajar() {
                 const tbody = document.getElementById('isiJadualPelajar');
                 
