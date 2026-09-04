@@ -154,6 +154,14 @@
 
         let senaraiTempahanSediaAda = [];
 
+        // FUNGSI UNTUK MERAPIKAN FORMAT TARIKH KEPADA YYYY-MM-DD
+        function formatTarikhStandard(d) {
+            let yyyy = d.getFullYear();
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
         // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK (9 KOLUM)
         function janaTimetable2Minggu() {
             const tbody = document.getElementById('isiTimetable2Minggu');
@@ -172,7 +180,7 @@
                 let dayOfWeek = tarikh.getDay();
 
                 if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-                    let formatTarikhISO = tarikh.toISOString().split('T')[0];
+                    let formatTarikhISO = formatTarikhStandard(tarikh);
                     let formatPapar = `${tarikh.getDate()}/${tarikh.getMonth()+1} (${hariNama[dayOfWeek]})`;
 
                     if (hariDijana === 5) {
@@ -214,10 +222,8 @@
             penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
             penerangan.style.color = '#2c3e50';
 
-            // Menyemak semua rekod aktif
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
-                    // Penyesuaian format masa (cth: '08:00' atau '8:00')
                     let masaMulaFormatted = rekod.masa_mula;
                     if (masaMulaFormatted && masaMulaFormatted.length === 4) {
                         masaMulaFormatted = '0' + masaMulaFormatted;
@@ -232,7 +238,7 @@
                         elSlot.innerHTML = `🔴 Ditempah:<br><strong>${namaPemohon}</strong>`;
                         
                         elSlot.onclick = function() {
-                            alert(`❌ Slot ini telah pun ditempah oleh "${namaPemohon}" untuk ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot yang masih 🟢 Kosong.`);
+                            alert(`❌ Slot ini telah pun ditempah oleh "${namaPemohon}" untuk ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot lain.`);
                         };
                     }
                 }
@@ -326,8 +332,14 @@
                     alert('Gagal menghantar tempahan: ' + error.message);
                 } else {
                     alert('✅ Tempahan berjaya dihantar!');
-                    document.getElementById('formTempahan').reset();
                     
+                    // Reset nama pemohon & tujuan sahaja, kekalkan pilihan peralatan
+                    document.getElementById('nama_pemohon').value = '';
+                    document.getElementById('tujuan').value = '';
+                    document.getElementById('tarikh_guna').value = '';
+                    document.getElementById('masa_mula').value = '';
+                    document.getElementById('masa_tamat').value = '';
+
                     // Kemaskini semula data Supabase dan refresh jadual secara automatik
                     await muatTurunTempahan();
                     kemaskiniStatusTimetable();
