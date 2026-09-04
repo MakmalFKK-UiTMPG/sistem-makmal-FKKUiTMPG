@@ -17,6 +17,11 @@
         .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
         .input-group input, .input-group select, .input-group textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
+        /* PENAPIS PERALATAN */
+        .filter-card { background: #eef2f7; border-left: 5px solid #2980b9; padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+        .filter-card label { font-weight: bold; font-size: 15px; color: #2c3e50; display: block; margin-bottom: 8px; }
+        .filter-card select { width: 100%; padding: 10px; font-weight: bold; border: 1px solid #2980b9; border-radius: 5px; }
+
         /* JADUAL TIMETABLE 2 MINGGU */
         .timetable-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
         .timetable { width: 100%; border-collapse: collapse; min-width: 900px; }
@@ -27,8 +32,8 @@
         /* STATUS SLOT TIMETABLE */
         .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 11px; padding: 8px 4px; }
         .slot-available:hover { background-color: #d4efdf; border: 1px solid #27ae60; }
-        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 10px; padding: 6px 2px; }
-        
+        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 11px; padding: 8px 4px; }
+
         button { background-color: #2980b9; color: white; border: none; padding: 12px 15px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background-color: #3498db; }
         
@@ -48,19 +53,19 @@
     <h2>📋 Borang & Jadual Tempahan Peralatan</h2>
 
     <form id="formTempahan">
-        <!-- BAHAGIAN 1: MAKLUMAT PEMOHON -->
+        <!-- LANGKAH 1: PENAPIS & PEMILIHAN PERALATAN -->
         <div class="form-card">
-            <h3>Langkah 1: Isi Maklumat Pemohon & Peralatan</h3>
+            <h3>Langkah 1: Isi Maklumat Pemohon & Pilih Peralatan</h3>
             
             <div class="input-group">
                 <label>Nama Pemohon:</label>
                 <input type="text" id="nama_pemohon" required placeholder="Contoh: Ahmad Bin Ali">
             </div>
 
-            <div class="input-group">
-                <label>Nama Peralatan:</label>
+            <div class="filter-card">
+                <label>🔍 Pilih Peralatan Untuk Lihat Ketersediaan Slot:</label>
                 <select id="nama_peralatan" required onchange="kemaskiniStatusTimetable()">
-                    <option value="">-- Pilih Peralatan Terlebih Dahulu --</option>
+                    <option value="">-- Sila Pilih Peralatan --</option>
                     <option value="Vacuum Furnace">Vacuum Furnace</option>
                     <option value="Muffle Furnace">Muffle Furnace</option>
                     <option value="UV-VIS">UV-VIS</option>
@@ -70,16 +75,16 @@
             </div>
 
             <div class="input-group">
-                <label>Tujuan:</label>
+                <label>Tujuan Penggunaan:</label>
                 <textarea id="tujuan" rows="2" placeholder="Tujuan penggunaan..."></textarea>
             </div>
         </div>
 
-        <!-- BAHAGIAN 2: JADUAL TIMETABLE -->
+        <!-- LANGKAH 2: JADUAL TIMETABLE DINAMIK -->
         <div class="timetable-card">
             <h3>Langkah 2: Pilih Slot Masa Pada Jadual</h3>
-            <p style="text-align: center; color: #555; margin-top: 0; font-weight: bold;">
-                Klik mana-mana slot <span style="color: #27ae60;">"🟢 Kosong"</span> untuk menetapkan Tarikh & Masa automatik:
+            <p id="peneranganJadual" style="text-align: center; color: #7f8c8d; margin-top: 0; font-weight: bold;">
+                ⚠️ Sila pilih peralatan di Langkah 1 dahulu untuk melihat status ketersediaan slot.
             </p>
             <table class="timetable">
                 <thead>
@@ -101,7 +106,7 @@
             </table>
         </div>
 
-        <!-- BAHAGIAN 3: TARIKH, MASA & BUTANG HANTAR -->
+        <!-- LANGKAH 3: PENGESAHAN TARIKH & MASA -->
         <div class="form-card" id="bahagianBorangPengesahan">
             <h3>Langkah 3: Sahkan Tarikh & Masa Tempahan</h3>
             
@@ -213,25 +218,35 @@
             }
         }
 
-        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH
+        // 2. FUNGSI KEMASKINI STATUS SLOT IKUT PERALATAN DIPILIH
         function kemaskiniStatusTimetable() {
-            janaTimetable2Minggu(); // Reset balik ke kosong
+            janaTimetable2Minggu(); // Reset jadual ke status Kosong
 
             const peralatanDipilih = document.getElementById('nama_peralatan').value;
-            if (!peralatanDipilih) return;
+            const penerangan = document.getElementById('peneranganJadual');
 
+            if (!peralatanDipilih) {
+                penerangan.innerHTML = '⚠️ Sila pilih peralatan di Langkah 1 dahulu untuk melihat status ketersediaan slot.';
+                penerangan.style.color = '#7f8c8d';
+                return;
+            }
+
+            penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
+            penerangan.style.color = '#2c3e50';
+
+            // Filter tempahan aktif untuk peralatan yang dipilih sahaja
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
                     const idSlot = `slot_${rekod.tarikh_guna}_${rekod.masa_mula}`;
                     const elSlot = document.getElementById(idSlot);
+                    
                     if (elSlot) {
                         const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || 'Pengguna';
-                        
                         elSlot.className = "slot-booked";
                         elSlot.innerHTML = `🔴 Ditempah:<br><strong>${namaPemohon}</strong>`;
                         
                         elSlot.onclick = function() {
-                            alert(`❌ Slot ini telah ditempah oleh "${namaPemohon}" untuk ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot lain.`);
+                            alert(`❌ Slot ini telah pun ditempah oleh "${namaPemohon}" untuk ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot yang masih 🟢 Kosong.`);
                         };
                     }
                 }
@@ -285,7 +300,7 @@
                     return;
                 }
 
-                // SEMAK PERTINDIHAN
+                // SEMAK PERTINDIHAN SEBELUM INSERT
                 const { data: bertindih, error: ralatSemak } = await supabaseClient
                     .from('tempahan_peralatan')
                     .select('*')
@@ -306,7 +321,7 @@
                     return;
                 }
 
-                // PROSES INSERT TEMPAHAN
+                // SIMPAN KE SUPABASE
                 const { data, error } = await supabaseClient
                     .from('tempahan_peralatan')
                     .insert([
