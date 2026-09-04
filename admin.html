@@ -95,8 +95,9 @@
                         if (statusSemasa === 'Lulus') statusClass = 'status-lulus';
                         if (statusSemasa === 'Ditolak') statusClass = 'status-tolak';
 
-                        const namaPemohon = rekod.nama_pemohon || '-';
-                        const noTelefon = rekod.no_telefon || '-';
+                        // Mengesan apa-apa variasi ejaan nama & no telefon
+                        const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || '-';
+                        const noTelefon = rekod.no_telefon || rekod.no_tel || rekod.phone || '-';
                         const namaPeralatan = rekod.nama_peralatan || '-';
                         const tarikhGuna = rekod.tarikh_guna || '-';
                         const masaDisplay = (rekod.masa_mula && rekod.masa_tamat) ? `${rekod.masa_mula} - ${rekod.masa_tamat}` : '-';
@@ -106,7 +107,7 @@
                         
                         // Kolum No. Telefon dengan Pautan Direct Call
                         const cellPhone = row.insertCell(1);
-                        if (noTelefon !== '-' && noTelefon !== '') {
+                        if (noTelefon !== '-' && noTelefon !== '' && noTelefon !== null) {
                             cellPhone.innerHTML = `<a href="tel:${noTelefon}" class="phone-link">📞 ${noTelefon}</a>`;
                         } else {
                             cellPhone.innerText = '-';
