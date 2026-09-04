@@ -7,13 +7,13 @@
     
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: auto; background-color: #f9f9f9; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1100px; margin: auto; background-color: #f9f9f9; }
         h2 { color: #333; }
         
         .back-btn { display: inline-block; margin-bottom: 15px; color: #2980b9; text-decoration: none; font-weight: bold; }
 
-        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
         th { background-color: #2c3e50; color: white; }
 
         .status-menunggu { color: #d35400; font-weight: bold; }
@@ -27,6 +27,9 @@
         .btn-lulus:hover { background-color: #219150; }
         .btn-tolak:hover { background-color: #a93226; }
         .btn-padam:hover { background-color: #922b21; }
+
+        .phone-link { color: #2980b9; font-weight: bold; text-decoration: none; }
+        .phone-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -39,27 +42,29 @@
         <thead>
             <tr>
                 <th>Nama Pemohon</th>
+                <th>No. Telefon</th>
                 <th>Peralatan</th>
                 <th>Tarikh Guna</th>
                 <th>Masa</th>
+                <th>Tujuan</th>
                 <th>Status Semasa</th>
                 <th>Tindakan Admin</th>
             </tr>
         </thead>
         <tbody id="isiJadual">
-            <tr><td colspan="6" style="text-align:center;">Memuatkan data...</td></tr>
+            <tr><td colspan="8" style="text-align:center;">Memuatkan data...</td></tr>
         </tbody>
     </table>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. TETAPAN SUPABASE
+            // TETAPAN SUPABASE
             const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
             
             const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            // 2. FUNGSI DAPATKAN DATA
+            // 1. DAPATKAN DATA TEMPAHAN
             async function dapatkanData() {
                 const tbody = document.getElementById('isiJadual');
                 
@@ -71,16 +76,16 @@
 
                     if (error) {
                         alert("Ralat Supabase: " + error.message);
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Ralat mengambil data dari database.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">Ralat mengambil data dari database.</td></tr>';
                         return;
                     }
 
                     if (!data || data.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Tiada rekod tempahan ditemui.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Tiada rekod tempahan ditemui.</td></tr>';
                         return;
                     }
 
-                    tbody.innerHTML = ''; // Kosongkan perkataan Memuatkan...
+                    tbody.innerHTML = '';
 
                     data.forEach(rekod => {
                         const row = tbody.insertRow();
@@ -90,35 +95,43 @@
                         if (statusSemasa === 'Lulus') statusClass = 'status-lulus';
                         if (statusSemasa === 'Ditolak') statusClass = 'status-tolak';
 
-                        // Mengendalikan sebarang variasi nama lajur di Supabase
-                        const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || '-';
+                        const namaPemohon = rekod.nama_pemohon || '-';
+                        const noTelefon = rekod.no_telefon || '-';
                         const namaPeralatan = rekod.nama_peralatan || '-';
                         const tarikhGuna = rekod.tarikh_guna || '-';
                         const masaDisplay = (rekod.masa_mula && rekod.masa_tamat) ? `${rekod.masa_mula} - ${rekod.masa_tamat}` : '-';
+                        const tujuan = rekod.tujuan || '-';
 
                         row.insertCell(0).innerText = namaPemohon;
-                        row.insertCell(1).innerText = namaPeralatan;
-                        row.insertCell(2).innerText = tarikhGuna;
-                        row.insertCell(3).innerText = masaDisplay;
                         
-                        const cellStatus = row.insertCell(4);
+                        // Kolum No. Telefon dengan Pautan Hubungi
+                        const cellPhone = row.insertCell(1);
+                        if (noTelefon !== '-') {
+                            cellPhone.innerHTML = `<a href="tel:${noTelefon}" class="phone-link">📞 ${noTelefon}</a>`;
+                        } else {
+                            cellPhone.innerText = '-';
+                        }
+
+                        row.insertCell(2).innerText = namaPeralatan;
+                        row.insertCell(3).innerText = tarikhGuna;
+                        row.insertCell(4).innerText = masaDisplay;
+                        row.insertCell(5).innerText = tujuan;
+                        
+                        const cellStatus = row.insertCell(6);
                         cellStatus.innerHTML = `<span class="${statusClass}">${statusSemasa}</span>`;
 
-                        const cellTindakan = row.insertCell(5);
+                        const cellTindakan = row.insertCell(7);
                         
-                        // 1. Butang Lulus
                         const btnLulus = document.createElement('button');
                         btnLulus.className = 'btn-lulus';
                         btnLulus.innerText = 'Lulus';
                         btnLulus.onclick = function() { tukarStatus(rekod.id, 'Lulus'); };
 
-                        // 2. Butang Tolak
                         const btnTolak = document.createElement('button');
                         btnTolak.className = 'btn-tolak';
                         btnTolak.innerText = 'Tolak';
                         btnTolak.onclick = function() { tukarStatus(rekod.id, 'Ditolak'); };
 
-                        // 3. Butang Padam (Baharu)
                         const btnPadam = document.createElement('button');
                         btnPadam.className = 'btn-padam';
                         btnPadam.innerText = '🗑️ Padam';
@@ -134,7 +147,7 @@
                 }
             }
 
-            // 3. FUNGSI TUKAR STATUS
+            // 2. FUNGSI TUKAR STATUS
             async function tukarStatus(id, statusBaru) {
                 const { error } = await supabaseClient
                     .from('tempahan_peralatan')
@@ -149,7 +162,7 @@
                 }
             }
 
-            // 4. FUNGSI PADAM REKOD (BAHARU)
+            // 3. FUNGSI PADAM REKOD
             async function padamRekod(id, nama) {
                 const sahkan = confirm(`Adakah anda pasti ingin memadam rekod tempahan oleh "${nama}"? Data ini akan dipadam secara kekal dari database.`);
                 
@@ -163,12 +176,11 @@
                         alert('Gagal memadam rekod: ' + error.message);
                     } else {
                         alert('✅ Rekod berjaya dipadam secara kekal!');
-                        dapatkanData(); // Refresh jadual
+                        dapatkanData();
                     }
                 }
             }
 
-            // Jalankan sebaik sahaja elemen HTML siap dimuatkan
             dapatkanData();
         });
     </script>
