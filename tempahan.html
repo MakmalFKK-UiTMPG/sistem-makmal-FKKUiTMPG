@@ -53,7 +53,7 @@
     <h2>📋 Borang & Jadual Tempahan Peralatan</h2>
 
     <form id="formTempahan">
-        <!-- LANGKAH 1: PENAPIS & PEMILIHAN PERALATAN -->
+        <!-- LANGKAH 1: MAKLUMAT PEMOHON & PERALATAN -->
         <div class="form-card">
             <h3>Langkah 1: Isi Maklumat Pemohon & Pilih Peralatan</h3>
             
@@ -117,32 +117,12 @@
 
             <div class="input-group">
                 <label>Masa Mula:</label>
-                <select id="masa_mula" required style="background-color: #eef2f5; font-weight: bold;">
-                    <option value="">-- Pilih dari Jadual di Atas --</option>
-                    <option value="08:00">08:00 AM</option>
-                    <option value="09:00">09:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="14:00">02:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
-                </select>
+                <input type="text" id="masa_mula" required readonly style="background-color: #eef2f5; font-weight: bold;" placeholder="Pilih dari jadual">
             </div>
 
             <div class="input-group">
                 <label>Masa Tamat:</label>
-                <select id="masa_tamat" required style="background-color: #eef2f5; font-weight: bold;">
-                    <option value="">-- Pilih dari Jadual di Atas --</option>
-                    <option value="09:00">09:00 AM</option>
-                    <option value="10:00">10:00 AM</option>
-                    <option value="11:00">11:00 AM</option>
-                    <option value="12:00">12:00 PM</option>
-                    <option value="13:00">01:00 PM</option>
-                    <option value="15:00">03:00 PM</option>
-                    <option value="16:00">04:00 PM</option>
-                    <option value="17:00">05:00 PM</option>
-                </select>
+                <input type="text" id="masa_tamat" required readonly style="background-color: #eef2f5; font-weight: bold;" placeholder="Pilih dari jadual">
             </div>
 
             <button type="submit">Hantar Tempahan</button>
@@ -234,10 +214,16 @@
             penerangan.innerHTML = `Paparan Ketersediaan Slot Bagi Peralatan: <span style="color:#2980b9;">${peralatanDipilih}</span>`;
             penerangan.style.color = '#2c3e50';
 
-            // Filter tempahan aktif untuk peralatan yang dipilih sahaja
+            // Menyemak semua rekod aktif
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
-                    const idSlot = `slot_${rekod.tarikh_guna}_${rekod.masa_mula}`;
+                    // Penyesuaian format masa (cth: '08:00' atau '8:00')
+                    let masaMulaFormatted = rekod.masa_mula;
+                    if (masaMulaFormatted && masaMulaFormatted.length === 4) {
+                        masaMulaFormatted = '0' + masaMulaFormatted;
+                    }
+
+                    const idSlot = `slot_${rekod.tarikh_guna}_${masaMulaFormatted}`;
                     const elSlot = document.getElementById(idSlot);
                     
                     if (elSlot) {
@@ -268,19 +254,19 @@
             document.getElementById('bahagianBorangPengesahan').scrollIntoView({ behavior: 'smooth' });
         }
 
+        // 4. MUAT TURUN DATA SUPABASE
+        async function muatTurunTempahan() {
+            const { data, error } = await supabaseClient
+                .from('tempahan_peralatan')
+                .select('*');
+            
+            if (!error && data) {
+                senaraiTempahanSediaAda = data;
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", async function() {
             janaTimetable2Minggu();
-
-            async function muatTurunTempahan() {
-                const { data, error } = await supabaseClient
-                    .from('tempahan_peralatan')
-                    .select('*');
-                
-                if (!error && data) {
-                    senaraiTempahanSediaAda = data;
-                }
-            }
-
             await muatTurunTempahan();
             paparkanTempahanPelajar();
 
@@ -295,7 +281,7 @@
                 const masa_tamat = document.getElementById('masa_tamat').value;
                 const tujuan = document.getElementById('tujuan').value;
 
-                if (!tarikh_guna) {
+                if (!tarikh_guna || !masa_mula) {
                     alert("Sila pilih slot tarikh dan masa pada jadual di Langkah 2 terlebih dahulu!");
                     return;
                 }
@@ -315,7 +301,7 @@
                 }
 
                 if (bertindih && bertindih.length > 0) {
-                    alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (Jam ${masa_mula}) telah pun ditempah. Sila pilih slot lain.`);
+                    alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (${masa_mula}) telah pun ditempah. Sila pilih slot lain.`);
                     await muatTurunTempahan();
                     kemaskiniStatusTimetable();
                     return;
@@ -341,6 +327,8 @@
                 } else {
                     alert('✅ Tempahan berjaya dihantar!');
                     document.getElementById('formTempahan').reset();
+                    
+                    // Kemaskini semula data Supabase dan refresh jadual secara automatik
                     await muatTurunTempahan();
                     kemaskiniStatusTimetable();
                     paparkanTempahanPelajar();
