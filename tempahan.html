@@ -7,7 +7,7 @@
     
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 950px; margin: auto; background-color: #f9f9f9; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1100px; margin: auto; background-color: #f9f9f9; }
         h2, h3 { color: #2c3e50; text-align: center; }
         .back-btn { display: inline-block; margin-bottom: 15px; color: #2980b9; text-decoration: none; font-weight: bold; }
         
@@ -19,15 +19,15 @@
         
         /* JADUAL TIMETABLE 2 MINGGU */
         .timetable-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
-        .timetable { width: 100%; border-collapse: collapse; min-width: 750px; }
-        .timetable th, .timetable td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 13px; }
+        .timetable { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .timetable th, .timetable td { border: 1px solid #ddd; padding: 6px; text-align: center; font-size: 12px; }
         .timetable th { background-color: #2c3e50; color: white; }
-        .timetable th.week-header { background-color: #34495e; font-size: 14px; text-align: left; padding-left: 15px; }
+        .timetable th.week-header { background-color: #34495e; font-size: 13px; text-align: left; padding-left: 15px; }
         
         /* STATUS SLOT TIMETABLE */
-        .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; }
+        .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 11px; padding: 8px 4px; }
         .slot-available:hover { background-color: #d4efdf; border: 1px solid #27ae60; }
-        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 11px; padding: 6px 2px; }
+        .slot-booked { background-color: #fce8e6; color: #c0392b; font-weight: bold; cursor: not-allowed; border-radius: 4px; font-size: 10px; padding: 6px 2px; }
         
         button { background-color: #2980b9; color: white; border: none; padding: 12px 15px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
         button:hover { background-color: #3498db; }
@@ -48,7 +48,7 @@
     <h2>📋 Borang & Jadual Tempahan Peralatan</h2>
 
     <form id="formTempahan">
-        <!-- BAHAGIAN 1: MAKLUMAT PEMOHON (SEBELUM TIMETABLE) -->
+        <!-- BAHAGIAN 1: MAKLUMAT PEMOHON -->
         <div class="form-card">
             <h3>Langkah 1: Isi Maklumat Pemohon & Peralatan</h3>
             
@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <!-- BAHAGIAN 2: JADUAL TIMETABLE (DITENGAH) -->
+        <!-- BAHAGIAN 2: JADUAL TIMETABLE -->
         <div class="timetable-card">
             <h3>Langkah 2: Pilih Slot Masa Pada Jadual</h3>
             <p style="text-align: center; color: #555; margin-top: 0; font-weight: bold;">
@@ -85,23 +85,23 @@
                 <thead>
                     <tr>
                         <th>Tarikh / Hari</th>
-                        <th>Pagi (08:00 - 9:00)</th>
-                        <th>Pagi (09:00 - 10:00)</th>
-                        <th>Pagi (10:00 - 11:00)</th>
-                        <th>Tengah Hari (11:00 - 12:00)</th>
-                       <th>Tengah Hari (12:00 - 01:00)</th>
-                        <th>Petang 1 (02:00 - 03:00)</th>
-                        <th>Petang 1 (03:00 - 04:00)</th>
-                        <th>Petang 2 (04:00 - 05:00)</th>
+                        <th>Pagi<br>(08:00 - 09:00)</th>
+                        <th>Pagi<br>(09:00 - 10:00)</th>
+                        <th>Pagi<br>(10:00 - 11:00)</th>
+                        <th>Tengah Hari<br>(11:00 - 12:00)</th>
+                        <th>Tengah Hari<br>(12:00 - 01:00)</th>
+                        <th>Petang 1<br>(02:00 - 03:00)</th>
+                        <th>Petang 1<br>(03:00 - 04:00)</th>
+                        <th>Petang 2<br>(04:00 - 05:00)</th>
                     </tr>
                 </thead>
                 <tbody id="isiTimetable2Minggu">
-                    <!-- Tarikh 2 minggu akan dijana automatik -->
+                    <!-- Tarikh 2 minggu dijana automatik -->
                 </tbody>
             </table>
         </div>
 
-        <!-- BAHAGIAN 3: TARIKH, MASA & BUTANG HANTAR (BAWAH TIMETABLE) -->
+        <!-- BAHAGIAN 3: TARIKH, MASA & BUTANG HANTAR -->
         <div class="form-card" id="bahagianBorangPengesahan">
             <h3>Langkah 3: Sahkan Tarikh & Masa Tempahan</h3>
             
@@ -169,7 +169,7 @@
 
         let senaraiTempahanSediaAda = [];
 
-        // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK
+        // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK (9 KOLUM)
         function janaTimetable2Minggu() {
             const tbody = document.getElementById('isiTimetable2Minggu');
             tbody.innerHTML = '';
@@ -179,7 +179,7 @@
             let hariDijana = 0;
 
             let rowMinggu1 = tbody.insertRow();
-            rowMinggu1.innerHTML = `<td colspan="5" class="week-header">📅 <strong>MINGGU 1 (Hari Bekerja)</strong></td>`;
+            rowMinggu1.innerHTML = `<td colspan="9" class="week-header">📅 <strong>MINGGU 1 (Hari Bekerja)</strong></td>`;
 
             while (hariDijana < 10) {
                 let tarikh = new Date();
@@ -192,15 +192,19 @@
 
                     if (hariDijana === 5) {
                         let rowMinggu2 = tbody.insertRow();
-                        rowMinggu2.innerHTML = `<td colspan="5" class="week-header">📅 <strong>MINGGU 2 (Hari Bekerja)</strong></td>`;
+                        rowMinggu2.innerHTML = `<td colspan="9" class="week-header">📅 <strong>MINGGU 2 (Hari Bekerja)</strong></td>`;
                     }
 
                     let row = tbody.insertRow();
                     row.innerHTML = `
                         <td><strong>${formatPapar}</strong></td>
-                        <td id="slot_${formatTarikhISO}_08:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '08:00', '10:00')">🟢 Kosong</td>
-                        <td id="slot_${formatTarikhISO}_10:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '10:00', '12:00')">🟢 Kosong</td>
-                        <td id="slot_${formatTarikhISO}_14:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '14:00', '16:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_08:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '08:00', '09:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_09:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '09:00', '10:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_10:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '10:00', '11:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_11:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '11:00', '12:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_12:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '12:00', '13:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_14:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '14:00', '15:00')">🟢 Kosong</td>
+                        <td id="slot_${formatTarikhISO}_15:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '15:00', '16:00')">🟢 Kosong</td>
                         <td id="slot_${formatTarikhISO}_16:00" class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '16:00', '17:00')">🟢 Kosong</td>
                     `;
                     hariDijana++;
@@ -209,14 +213,13 @@
             }
         }
 
-        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH (TERMASUK NAMA PEMOHON)
+        // 2. FUNGSI KEMASKINI STATUS SLOT BERDASARKAN PERALATAN DIPILIH
         function kemaskiniStatusTimetable() {
             janaTimetable2Minggu(); // Reset balik ke kosong
 
             const peralatanDipilih = document.getElementById('nama_peralatan').value;
             if (!peralatanDipilih) return;
 
-            // Filter tempahan aktif untuk peralatan yang dipilih
             senaraiTempahanSediaAda.forEach(rekod => {
                 if (rekod.nama_peralatan === peralatanDipilih && rekod.status !== 'Ditolak') {
                     const idSlot = `slot_${rekod.tarikh_guna}_${rekod.masa_mula}`;
@@ -225,18 +228,17 @@
                         const namaPemohon = rekod.nama_pemohon || rekod['Name: nama_pemohon'] || 'Pengguna';
                         
                         elSlot.className = "slot-booked";
-                        // Memaparkan nama pemohon di dalam petak timetable
                         elSlot.innerHTML = `🔴 Ditempah:<br><strong>${namaPemohon}</strong>`;
                         
                         elSlot.onclick = function() {
-                            alert(`❌ Slot ini telah ditempah oleh "${namaPemohon}" untuk peralatan ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot lain.`);
+                            alert(`❌ Slot ini telah ditempah oleh "${namaPemohon}" untuk ${peralatanDipilih} pada tarikh ${rekod.tarikh_guna}. Sila pilih slot lain.`);
                         };
                     }
                 }
             });
         }
 
-        // 3. FUNGSI PILIH SLOT (AUTO ISIKAN TARIKH & MASA & SCROLL)
+        // 3. FUNGSI PILIH SLOT
         function pilihSlotFull(tarikh, mula, tamat) {
             const peralatanDipilih = document.getElementById('nama_peralatan').value;
             if (!peralatanDipilih) {
@@ -254,7 +256,6 @@
         document.addEventListener("DOMContentLoaded", async function() {
             janaTimetable2Minggu();
 
-            // AMBIL SEMUA REKOD DARI SUPABASE DAHULU
             async function muatTurunTempahan() {
                 const { data, error } = await supabaseClient
                     .from('tempahan_peralatan')
@@ -268,7 +269,7 @@
             await muatTurunTempahan();
             paparkanTempahanPelajar();
 
-            // FUNGSI HANTAR TEMPAHAN DENGAN SEMAKAN PERTINDIHAN
+            // FUNGSI HANTAR TEMPAHAN
             document.getElementById('formTempahan').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -284,7 +285,7 @@
                     return;
                 }
 
-                // 1. SEMAK PERTINDIHAN DALAM SUPABASE
+                // SEMAK PERTINDIHAN
                 const { data: bertindih, error: ralatSemak } = await supabaseClient
                     .from('tempahan_peralatan')
                     .select('*')
@@ -299,13 +300,13 @@
                 }
 
                 if (bertindih && bertindih.length > 0) {
-                    alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (Jam ${masa_mula}) telah pun ditempah oleh pengguna lain. Sila pilih slot atau peralatan lain.`);
+                    alert(`❌ MAAF! Peralatan (${nama_peralatan}) pada tarikh ${tarikh_guna} (Jam ${masa_mula}) telah pun ditempah. Sila pilih slot lain.`);
                     await muatTurunTempahan();
                     kemaskiniStatusTimetable();
                     return;
                 }
 
-                // 2. PROSES TEMPAHAN JIKA TIADA BERTINDIH
+                // PROSES INSERT TEMPAHAN
                 const { data, error } = await supabaseClient
                     .from('tempahan_peralatan')
                     .insert([
