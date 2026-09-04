@@ -7,18 +7,19 @@
     <!-- Guna CDN Supabase yang sama dengan admin.html -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; background-color: #f9f9f9; }
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 950px; margin: auto; background-color: #f9f9f9; }
         h2, h3 { color: #2c3e50; text-align: center; }
         
         .back-btn { display: inline-block; margin-bottom: 15px; color: #2980b9; text-decoration: none; font-weight: bold; }
         
-        /* JADUAL TIMETABLE */
+        /* JADUAL TIMETABLE 2 MINGGU */
         .timetable-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
-        .timetable { width: 100%; border-collapse: collapse; min-width: 600px; }
-        .timetable th, .timetable td { border: 1px solid #ddd; padding: 10px; text-align: center; font-size: 14px; }
+        .timetable { width: 100%; border-collapse: collapse; min-width: 750px; }
+        .timetable th, .timetable td { border: 1px solid #ddd; padding: 8px; text-align: center; font-size: 13px; }
         .timetable th { background-color: #2c3e50; color: white; }
+        .timetable th.week-header { background-color: #34495e; font-size: 14px; text-align: left; padding-left: 15px; }
         
-        .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .slot-available { background-color: #e8f8f5; color: #27ae60; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 12px; }
         .slot-available:hover { background-color: #d4efdf; border: 1px solid #27ae60; }
         
         /* BORANG TEMPAHAN */
@@ -43,38 +44,32 @@
 <body>
 
     <a href="./makmal.html" class="back-btn">⬅️ Kembali ke Senarai Makmal</a>
-    <h2>📅 Jadual & Borang Tempahan Peralatan</h2>
+    <h2>📅 Jadual Tempahan Peralatan (2 Minggu)</h2>
 
-    <!-- JADUAL TIMETABLE KOSONG -->
+    <!-- JADUAL TIMETABLE 2 MINGGU -->
     <div class="timetable-card">
         <p style="text-align: center; color: #555; margin-top: 0; font-weight: bold;">
-            Klik mana-mana slot <span style="color: #27ae60;">"Kosong"</span> untuk pilih masa tempahan automatik:
+            Sila pilih slot <span style="color: #27ae60;">"Kosong"</span> mengikut tarikh dan sesi pilihan anda:
         </p>
         <table class="timetable">
             <thead>
                 <tr>
-                    <th>Slot Masa / Sesi</th>
+                    <th>Tarikh / Hari</th>
                     <th>Pagi (08:00 - 10:00)</th>
                     <th>Tengah Hari (10:00 - 12:00)</th>
                     <th>Petang 1 (02:00 - 04:00)</th>
                     <th>Petang 2 (04:00 - 05:00)</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Pilihan Waktu</strong></td>
-                    <td class="slot-available" onclick="pilihSlot('08:00', '10:00')">Kosong (Pilih)</td>
-                    <td class="slot-available" onclick="pilihSlot('10:00', '12:00')">Kosong (Pilih)</td>
-                    <td class="slot-available" onclick="pilihSlot('14:00', '16:00')">Kosong (Pilih)</td>
-                    <td class="slot-available" onclick="pilihSlot('16:00', '17:00')">Kosong (Pilih)</td>
-                </tr>
+            <tbody id="isiTimetable2Minggu">
+                <!-- Tarikh 2 minggu akan dijana automatik oleh JavaScript -->
             </tbody>
         </table>
     </div>
 
-    <!-- BORANG TEMPAHAN (KOD ASAL) -->
+    <!-- BORANG TEMPAHAN -->
     <div class="form-card" id="bahagianBorang">
-        <h3>Borang Tempahan</h3>
+        <h3>📋 Borang Tempahan</h3>
         <form id="formTempahan">
             <div class="input-group">
                 <label>Nama Pemohon:</label>
@@ -137,7 +132,7 @@
         </form>
     </div>
 
-    <!-- JADUAL SENARAI TEMPAHAN PELAJAR (KOD ASAL) -->
+    <!-- JADUAL SENARAI TEMPAHAN PELAJAR -->
     <h3>Status Tempahan Semasa</h3>
     <table class="status-table">
         <thead>
@@ -155,21 +150,69 @@
     </table>
 
     <script>
-        // FUNGSI PILIH SLOT DARI TIMETABLE
-        function pilihSlot(mula, tamat) {
+        // 1. FUNGSI PENJANAAN JADUAL 2 MINGGU AUTOMATIK
+        function janaTimetable2Minggu() {
+            const tbody = document.getElementById('isiTimetable2Minggu');
+            tbody.innerHTML = '';
+
+            const hariNama = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+            let harimaju = 0;
+            let hariDijana = 0;
+
+            // Header Minggu Pertama
+            let rowMinggu1 = tbody.insertRow();
+            rowMinggu1.innerHTML = `<td colspan="5" class="week-header">📅 <strong>MINGGU 1 (Hari Bekerja)</strong></td>`;
+
+            while (hariDijana < 10) {
+                let tarikh = new Date();
+                tarikh.setDate(tarikh.getDate() + harimaju);
+                
+                let dayOfWeek = tarikh.getDay();
+
+                // Abaikan Ahad (0) dan Sabtu (6)
+                if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                    let formatTarikhISO = tarikh.toISOString().split('T')[0];
+                    let formatPapar = `${tarikh.getDate()}/${tarikh.getMonth()+1} (${hariNama[dayOfWeek]})`;
+
+                    if (hariDijana === 5) {
+                        // Header Minggu Kedua
+                        let rowMinggu2 = tbody.insertRow();
+                        rowMinggu2.innerHTML = `<td colspan="5" class="week-header">📅 <strong>MINGGU 2 (Hari Bekerja)</strong></td>`;
+                    }
+
+                    let row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td><strong>${formatPapar}</strong></td>
+                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '08:00', '10:00')">Kosong</td>
+                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '10:00', '12:00')">Kosong</td>
+                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '14:00', '16:00')">Kosong</td>
+                        <td class="slot-available" onclick="pilihSlotFull('${formatTarikhISO}', '16:00', '17:00')">Kosong</td>
+                    `;
+                    hariDijana++;
+                }
+                harimaju++;
+            }
+        }
+
+        // 2. FUNGSI PILIH SLOT (AUTO ISIKAN TARIKH & MASA)
+        function pilihSlotFull(tarikh, mula, tamat) {
+            document.getElementById('tarikh_guna').value = tarikh;
             document.getElementById('masa_mula').value = mula;
             document.getElementById('masa_tamat').value = tamat;
             document.getElementById('bahagianBorang').scrollIntoView({ behavior: 'smooth' });
         }
 
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. TETAPAN SUPABASE (KEKALKAN DATA ANDA)
+            // Jana Timetable 2 Minggu sebaik sahaja halaman dimuatkan
+            janaTimetable2Minggu();
+
+            // TETAPAN SUPABASE (DATA ASAL ANDA)
             const supabaseUrl = 'https://mxrtxeczzebkrzayacwy.supabase.co';
             const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14cnR4ZWN6emVia3J6YXlhY3d5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyNTU5MDIsImV4cCI6MjEwMjgzMTkwMn0.nsZRuzUpelmfaMiw5fozucrc2XsaaZFxm8Mu28G3wzw';
             
             const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-            // 2. FUNGSI UNTUK HANTAR TEMPAHAN
+            // FUNGSI HANTAR TEMPAHAN
             document.getElementById('formTempahan').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -180,7 +223,6 @@
                 const masa_tamat = document.getElementById('masa_tamat').value;
                 const tujuan = document.getElementById('tujuan').value;
 
-                // Hantar data ke Supabase
                 const { data, error } = await supabaseClient
                     .from('tempahan_peralatan')
                     .insert([
@@ -197,7 +239,6 @@
 
                 if (error) {
                     alert('Gagal menghantar tempahan: ' + error.message);
-                    console.error('Ralat:', error);
                 } else {
                     alert('Tempahan berjaya dihantar!');
                     document.getElementById('formTempahan').reset();
@@ -205,7 +246,7 @@
                 }
             });
 
-            // 3. FUNGSI PAPAR SENARAI TEMPAHAN
+            // FUNGSI PAPAR SENARAI TEMPAHAN
             async function paparkanTempahanPelajar() {
                 const tbody = document.getElementById('isiJadualPelajar');
                 
@@ -215,7 +256,6 @@
                     .order('id', { ascending: false });
 
                 if (error) {
-                    console.error('Ralat ambil data:', error);
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Gagal memuatkan data.</td></tr>';
                     return;
                 }
