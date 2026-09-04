@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Senarai Makmal Fakulti Kejuruteraan Kimia UiTM Pasir Gudang</title>
+    
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; background-color: #f8f9fa; }
         h2 { color: #2c3e50; text-align: center; margin-bottom: 25px; }
-        
+
         /* KAD SEKSYEN ARAS */
         .level-card { 
             background: white; 
@@ -31,7 +32,7 @@
 
         .lab-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
             gap: 15px; 
             padding: 20px; 
         }
@@ -41,9 +42,25 @@
             padding: 15px; 
             border-radius: 6px; 
             border-left: 4px solid #2980b9;
-            font-weight: bold;
+        }
+
+        .lab-item h4 {
+            margin: 0 0 6px 0;
             color: #1e293b;
             font-size: 15px;
+            font-weight: bold;
+        }
+
+        .pic-info {
+            margin: 0;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .pic-name {
+            font-weight: bold;
+            color: #2980b9;
         }
 
         /* NAVIGASI BUTANG BAWAH */
@@ -75,16 +92,28 @@
 </head>
 <body>
 
-    <h2>🏛️ Senarai Makmal Fakulti Kejuruteraan Kimia</h2>
+    <h2>🏛️ Senarai Makmal Fakulti Kejuruteraan Kimia UiTM Pasir Gudang</h2>
 
     <!-- ARAS 1 -->
     <div class="level-card">
         <div class="level-header">🏢 ARAS 1</div>
         <div class="lab-grid">
-            <div class="lab-item">Makmal Pilot Plant</div>
-            <div class="lab-item">Makmal Fluid Mechanics</div>
-            <div class="lab-item">Makmal Process Control 1</div>
-            <div class="lab-item">Makmal Process Control 2 (Bengkel)</div>
+            <div class="lab-item">
+                <h4>Makmal Pilot Plant</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Fluid Mechanics</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Process Control 1</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Process Control 2 (Bengkel)</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
         </div>
     </div>
 
@@ -92,11 +121,26 @@
     <div class="level-card">
         <div class="level-header">🏢 ARAS 2</div>
         <div class="lab-grid">
-            <div class="lab-item">Makmal Heat Transfer and Thermodynamics</div>
-            <div class="lab-item">Makmal Chemistry 1</div>
-          <div class="lab-item">Makmal Chemistry 2</div>
-          <div class="lab-item">Makmal Analytical and Analysis </div>
-          <div class="lab-item">Makmal Computer</div>
+            <div class="lab-item">
+                <h4>Makmal Heat Transfer and Thermodynamics</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Chemistry 1</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Chemistry 2</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Analytical and Analysis</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Computer</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
         </div>
     </div>
 
@@ -104,20 +148,40 @@
     <div class="level-card">
         <div class="level-header">🏢 ARAS 3</div>
         <div class="lab-grid">
-            <div class="lab-item">Makmal Bio Process</div>
-          <div class="lab-item">Makmal Environment</div>
-          <div class="lab-item">Makmal Reaction Engineering</div>
-          <div class="lab-item">Makmal Physics</div>
+            <div class="lab-item">
+                <h4>Makmal Bio Process</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Environment</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Reaction Engineering</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Physics</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
         </div>
     </div>
-<!-- ARAS 4 -->
+
+    <!-- ARAS 4 -->
     <div class="level-card">
         <div class="level-header">🏢 ARAS 4</div>
         <div class="lab-grid">
-            <div class="lab-item">Makmal Computer 1</div>
-          <div class="lab-item">Makmal Computer 2</div>
+            <div class="lab-item">
+                <h4>Makmal Computer 1</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
+            <div class="lab-item">
+                <h4>Makmal Computer 2</h4>
+                <p class="pic-info">👤 PIC: <span class="pic-name">Nama PIC</span></p>
+            </div>
         </div>
     </div>
+
     <!-- BUTANG NAVIGASI UTAMA -->
     <div class="nav-container">
         <a href="./tempahan.html" class="btn-nav">📋 Borang Tempahan Peralatan</a>
